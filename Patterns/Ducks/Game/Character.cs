@@ -6,7 +6,7 @@ namespace Ducks.Game
     {
         private IWeaponBehavior _weaponBehavior;
 
-        public void SetWeaponBehavior(IWeaponBehavior weaponBehavior)
+        public void SetWeapon(IWeaponBehavior weaponBehavior)
         {
             _weaponBehavior = weaponBehavior;
         }
