@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Observer
 {
@@ -6,56 +7,107 @@ namespace Observer
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var weatherData = new WeatherData();
+            var currentConditionDisplay = new CurrentConditionDisplay(weatherData);
+
+            weatherData.SetMeasurements(80, 65, 30.4f);
+            weatherData.SetMeasurements(79, 53, 30.4f);
+            weatherData.SetMeasurements(56, 23, 40.4f);
         }
     }
 
     /// <summary>
     /// 
     /// </summary>
-    public class WeatherData
+    public class WeatherData : ISubject
     {
-        private CurrentConditionDisplay _currentConditionDisplay;
-        private StatisticsDisplay _statisticsDisplay;
-        private ForecastDisplay _forecastDisplay;
+        private List<IObserver> _observers;
+        private float _temperature;
+        private float _humidity;
+        private float _pressure;
 
-        private float GetTemperature()
+        public WeatherData()
         {
-            return 1;
-        }
-
-        private float GetHumidity()
-        {
-            return 1;
-        }
-
-        private float GetPressure()
-        {
-            return 1;
+            _observers = new List<IObserver>();
         }
 
         public void MeasurementsChanged()
         {
-            var temperature = GetTemperature();
-            var humidity = GetHumidity();
-            var pressure = GetPressure();
+            NotifyObservers();
+        }
 
-            _currentConditionDisplay.Update(temperature, humidity, pressure);
-            _statisticsDisplay.Update(temperature, humidity, pressure);
-            _forecastDisplay.Update(temperature, humidity, pressure);
+        public void RegisterObserver(IObserver observer)
+        {
+            _observers.Add(observer);
+        }
+
+        public void RemoveObserver(IObserver observer)
+        {
+            _observers.Remove(observer);
+        }
+
+        public void NotifyObservers()
+        {
+            _observers.ForEach(el => el.Update(_temperature, _humidity, _pressure));
+        }
+
+        ///<summary>
+        ///Тестовый метод для вызова наблюдателей
+        ///</summary>
+        public void SetMeasurements(float temperature, float humidity, float pressure)
+        {
+            _temperature = temperature;
+            _humidity = humidity;
+            _pressure = pressure;
+            MeasurementsChanged();
         }
     }
 
-    public class CurrentConditionDisplay
+    public class CurrentConditionDisplay : IObserver, IDisplayElement
     {
+        private ISubject _subject;
+        private float _temperature;
+        private float _humidity;
+
+        public CurrentConditionDisplay(ISubject subject)
+        {
+            _subject = subject;
+            _subject.RegisterObserver(this);
+        }
+        public void Display()
+        {
+            Console.WriteLine($"Current conditions: {_temperature}F degrees and {_humidity}% humidity");
+        }
+
         public void Update(float temperature, float humidity, float pressure)
         {
+            _temperature = temperature;
+            _humidity = humidity;
+            Display();
+        }
+    }
+
+    public class StatisticsDisplay : IObserver, IDisplayElement
+    {
+        public void Display()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update(float temperature, float humidity, float pressure)
+        {
+
 
         }
     }
 
-    public class StatisticsDisplay
+    public class ForecastDisplay : IObserver, IDisplayElement
     {
+        public void Display()
+        {
+            throw new NotImplementedException();
+        }
+
         public void Update(float temperature, float humidity, float pressure)
         {
 
@@ -63,12 +115,21 @@ namespace Observer
         }
     }
 
-    public class ForecastDisplay
+    public interface ISubject
     {
-        public void Update(float temperature, float humidity, float pressure)
-        {
+        void RegisterObserver(IObserver observer);
+        void RemoveObserver(IObserver observer);
+        void NotifyObservers();
 
+    }
 
-        }
+    public interface IObserver
+    {
+        void Update(float temperature, float humidity, float pressure);
+    }
+
+    public interface IDisplayElement
+    {
+        void Display();
     }
 }
