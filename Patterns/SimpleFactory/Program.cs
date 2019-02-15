@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Factory
+namespace SimpleFactory
 {
     class Program
     {
@@ -10,30 +10,16 @@ namespace Factory
         }
     }
 
-    public class Pizzeria
+    public class PizzaStore
     {
+        private SimplePizzaFactory _factory;
+        public PizzaStore(SimplePizzaFactory factory)
+        {
+            _factory = factory;
+        }
         public Pizza OrderPizza(PizzaType pizzaType)
         {
-            Pizza pizza;
-
-            switch (pizzaType)
-            {
-                case PizzaType.Cheese:
-                    pizza = new CheesePizza();
-                    break;
-                case PizzaType.Clam:
-                    pizza = new ClamPizza();
-                    break;
-                case PizzaType.Peperonni:
-                    pizza = new PeperonniPizza();
-                    break;
-                case PizzaType.Veggie:
-                    pizza = new VeggiePizza();
-                    break;
-                default:
-                    pizza = null;
-                    break;
-            }
+            Pizza pizza = _factory.Create(pizzaType);
 
             pizza.Prepare();
             pizza.Bake();
@@ -41,6 +27,26 @@ namespace Factory
             pizza.Box();
 
             return pizza;
+        }
+    }
+
+    public class SimplePizzaFactory
+    {
+        public Pizza Create(PizzaType pizzaType)
+        {
+            switch (pizzaType)
+            {
+                case PizzaType.Cheese:
+                    return new CheesePizza();
+                case PizzaType.Clam:
+                    return new ClamPizza();
+                case PizzaType.Peperonni:
+                    return new PeperonniPizza();
+                case PizzaType.Veggie:
+                    return new VeggiePizza();
+                default:
+                    return null;
+            }
         }
     }
 
