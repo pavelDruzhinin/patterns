@@ -20,13 +20,19 @@ namespace Factory
             {
                 case PizzaType.Cheese:
                     pizza = new CheesePizza();
+                    break;
                 case PizzaType.Clam:
                     pizza = new ClamPizza();
+                    break;
                 case PizzaType.Peperonni:
                     pizza = new PeperonniPizza();
+                    break;
                 case PizzaType.Veggie:
                     pizza = new VeggiePizza();
+                    break;
                 default:
+                    pizza = null;
+                    break;
             }
 
             pizza.Prepare();
