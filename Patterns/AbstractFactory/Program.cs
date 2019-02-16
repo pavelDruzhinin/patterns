@@ -15,6 +15,7 @@ namespace AbstractFactory
         Dough CreateDough();
         Sauce CreateSauce();
         Pepperoni CreatePepperoni();
+        Clam CreateClam();
     }
 
     public abstract class Pepperoni
@@ -28,6 +29,11 @@ namespace AbstractFactory
     }
 
     public abstract class Sauce
+    {
+
+    }
+
+    public abstract class Clam
     {
 
     }
@@ -48,6 +54,11 @@ namespace AbstractFactory
         {
             return new MarinaraSauce();
         }
+
+        public Clam CreateClam()
+        {
+            return new FreshClam();
+        }
     }
 
     public class SlicedPepperoni : Pepperoni
@@ -61,6 +72,11 @@ namespace AbstractFactory
     }
 
     public class ThinCrustDough : Dough
+    {
+
+    }
+
+    public class FreshClam : Clam
     {
 
     }
@@ -84,6 +100,10 @@ namespace AbstractFactory
 
     public abstract class Pizza
     {
+        protected Dough _dough;
+        protected Pepperoni _peperonni;
+        protected Sauce _sauce;
+        protected Clam _clam;
         public abstract void Prepare();
         public void Bake()
         {
@@ -103,16 +123,17 @@ namespace AbstractFactory
     {
         protected override Pizza CreatePizza(PizzaType pizzaType)
         {
+            var ingredientFactory = new NYPizzaIngredientFactory();
             switch (pizzaType)
             {
                 case PizzaType.Cheese:
-                    return new NYCheesePizza();
+                    return new NYCheesePizza(ingredientFactory);
                 case PizzaType.Clam:
-                    return new NYClamPizza();
+                    return new NYClamPizza(ingredientFactory);
                 case PizzaType.Peperonni:
-                    return new NYPeperonniPizza();
+                    return new NYPeperonniPizza(ingredientFactory);
                 case PizzaType.Veggie:
-                    return new NYVeggiePizza();
+                    return new NYVeggiePizza(ingredientFactory);
                 default:
                     return null;
             }
@@ -141,32 +162,65 @@ namespace AbstractFactory
 
     public class NYCheesePizza : Pizza
     {
+        private IPizzaIngredientFactory _factory;
+        public NYCheesePizza(IPizzaIngredientFactory factory)
+        {
+            _factory = factory;
+        }
         public override void Prepare()
         {
             Console.WriteLine("Prepare NY Cheese Pizza");
+            _dough = _factory.CreateDough();
+            _peperonni = _factory.CreatePepperoni();
+            _sauce = _factory.CreateSauce();
         }
     }
     public class NYPeperonniPizza : Pizza
     {
+        private IPizzaIngredientFactory _factory;
+        public NYCheesePizza(IPizzaIngredientFactory factory)
+        {
+            _factory = factory;
+        }
         public override void Prepare()
         {
             Console.WriteLine("Prepare NY Peperonni Pizza");
+            _dough = _factory.CreateDough();
+            _peperonni = _factory.CreatePepperoni();
+            _sauce = _factory.CreateSauce();
         }
     }
 
     public class NYClamPizza : Pizza
     {
+        private IPizzaIngredientFactory _factory;
+        public NYCheesePizza(IPizzaIngredientFactory factory)
+        {
+            _factory = factory;
+        }
         public override void Prepare()
         {
             Console.WriteLine("Prepare NY Clam Pizza");
+            _dough = _factory.CreateDough();
+            _peperonni = _factory.CreatePepperoni();
+            _sauce = _factory.CreateSauce();
+            _clam = _factory.CreateClam();
         }
     }
 
     public class NYVeggiePizza : Pizza
     {
+        private IPizzaIngredientFactory _factory;
+        public NYCheesePizza(IPizzaIngredientFactory factory)
+        {
+            _factory = factory;
+        }
         public override void Prepare()
         {
             Console.WriteLine("Prepare NY Veggie Pizza");
+            _dough = _factory.CreateDough();
+            _peperonni = _factory.CreatePepperoni();
+            _sauce = _factory.CreateSauce();
         }
     }
 
