@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Command
 {
@@ -68,6 +69,19 @@ namespace Command
         {
             garageDoor.Up();
             garageDoor.LightOn();
+        }
+    }
+
+    public class MacroCommand : ICommand
+    {
+        List<ICommand> _commands;
+        public MacroCommand(List<ICommand> commands)
+        {
+            _commands = commands;
+        }
+        public void Execute()
+        {
+            _commands.ForEach(x => x.Execute());
         }
     }
 
