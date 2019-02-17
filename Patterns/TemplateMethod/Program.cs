@@ -48,7 +48,8 @@ namespace TemplateMethod
             BoilWater();
             Brew();
             PourInCup();
-            AddCondiments();
+            if (IsCustomerWantsCondiments())
+                AddCondiments();
         }
 
         protected abstract void Brew();
@@ -62,6 +63,14 @@ namespace TemplateMethod
         private void PourInCup()
         {
             System.Console.WriteLine("Pouring into cup");
+        }
+
+        ///<summary>
+        /// hook method
+        ///</summary>
+        protected virtual bool IsCustomerWantsCondiments()
+        {
+            return true;
         }
     }
 }
