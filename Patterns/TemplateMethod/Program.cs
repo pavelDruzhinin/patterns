@@ -6,65 +6,60 @@ namespace TemplateMethod
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var tea = new Tea();
+            tea.PrepareRecipe();
+
+            var coffee = new Coffee();
+            coffee.PrepareRecipe();
         }
     }
 
-    public class Coffee
+    public class Coffee : CaffeineBeverage
     {
-        private void PrepareRecipe()
-        {
-            BoilWater();
-            BrewCoffeeGrinds();
-            PourInCup();
-            AddSugarAndMilk();
-        }
 
-        public void BoilWater()
-        {
-            Console.WriteLine("Boiling water");
-        }
-
-        public void BrewCoffeeGrinds()
+        protected override void Brew()
         {
             Console.WriteLine("Dripping Coffee through filter");
         }
 
-        public void PourInCup()
-        {
-            Console.WriteLine("Pouring into cup");
-        }
-
-        public void AddSugarAndMilk()
+        protected override void AddCondiments()
         {
             Console.WriteLine("Adding Sugar and Milk");
         }
     }
 
-    public class Tea
+    public class Tea : CaffeineBeverage
     {
-        void PrepareRecipe()
+
+        protected override void Brew()
+        {
+            System.Console.WriteLine("Steeping the tea");
+        }
+        protected override void AddCondiments()
+        {
+            System.Console.WriteLine("Adding Lemon");
+        }
+    }
+
+    public class CaffeineBeverage
+    {
+        public void PrepareRecipe()
         {
             BoilWater();
-            SteepTeaBug();
+            Brew();
             PourInCup();
-            AddLemon();
+            AddCondiments();
         }
 
-        public void BoilWater()
+        protected abstract void Brew();
+        protected abstract void AddCondiments();
+
+        private void BoilWater()
         {
             System.Console.WriteLine("Boiling water");
         }
 
-        public void SteepTeaBag()
-        {
-            System.Console.WriteLine("Steeping the tea");
-        }
-        public void AddLemon()
-        {
-            System.Console.WriteLine("Adding Lemon");
-        }
-        public void PourInCup()
+        private void PourInCup()
         {
             System.Console.WriteLine("Pouring into cup");
         }
