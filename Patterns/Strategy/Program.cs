@@ -1,6 +1,7 @@
 ﻿using System;
+using Strategy.Ducks;
 
-namespace Ducks
+namespace Strategy
 {
     class Program
     {

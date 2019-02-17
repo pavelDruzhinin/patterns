@@ -1,6 +1,7 @@
 ﻿using System;
+using Strategy.Ducks.Contracts;
 
-namespace Ducks
+namespace Strategy.Ducks
 {
     public abstract class Duck
     {

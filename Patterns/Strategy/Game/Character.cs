@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ducks.Game
+namespace Strategy.Game
 {
     public abstract class Character
     {

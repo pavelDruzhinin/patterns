@@ -1,4 +1,4 @@
-﻿namespace Ducks
+﻿namespace Strategy.Ducks.Contracts
 {
     public interface IFlyBehavior
     {

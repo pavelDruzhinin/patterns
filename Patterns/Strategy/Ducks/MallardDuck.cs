@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Ducks
+namespace Strategy.Ducks
 {
     public class MallardDuck : Duck
     {
