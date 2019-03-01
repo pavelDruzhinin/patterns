@@ -8,135 +8,271 @@ namespace State
         {
             var gumballMachine = new GumballMachine(5);
 
-            System.Console.WriteLine(gumballMachine);
+            Console.WriteLine(gumballMachine);
 
             gumballMachine.InsertQuarter();
             gumballMachine.TurnCrank();
 
-            System.Console.WriteLine(gumballMachine);
+            Console.WriteLine(gumballMachine);
 
             gumballMachine.InsertQuarter();
             gumballMachine.EjectQuarter();
             gumballMachine.TurnCrank();
 
-            System.Console.WriteLine(gumballMachine);
+            Console.WriteLine(gumballMachine);
         }
     }
 
     public class GumballMachine
     {
-        private GumballMachineState _state = GumballMachineState.SoldOut;
-        private int _count = 0;
+        public IState SoldOutState { get; }
+        public IState NoQuarterState { get; }
+        public IState HasQuarterState { get; }
+        public IState SoldState { get; }
+        public IState WinnerState { get; }
+        private IState _state;
+        public int Count { get; private set; }
         public GumballMachine(int count)
         {
-            _count = count;
+            SoldOutState = new SoldOutState(this);
+            NoQuarterState = new NoQuarterState(this);
+            HasQuarterState = new HasQuarterState(this);
+            SoldState = new SoldState(this);
+            WinnerState = new WinnerState(this);
+            Count = count;
+            _state = Count > 0 ? NoQuarterState : SoldOutState;
+        }
+
+        public void InsertQuarter()
+        {
+            _state.InsertQuarter();
+        }
+
+        public void EjectQuarter()
+        {
+            _state.EjectQuarter();
+        }
+
+        public void TurnCrank()
+        {
+            _state.TurnCrank();
+            _state.Dispense();
+        }
+
+        public void SetState(IState state)
+        {
+            _state = state;
+        }
+
+        public void ReleaseBall()
+        {
+            System.Console.WriteLine("A gumball comes rolling out the slot...");
+            if (Count != 0)
+                Count--;
+        }
+
+        public void Refill(int count)
+        {
+            Count = count;
+            _state = NoQuarterState;
         }
 
         public override string ToString()
         {
             return $"GumballMachine State: {_state.ToString()}";
         }
+    }
 
-        public void InsertQuarter()
-        {
-            var message = string.Empty;
-            switch (_state)
-            {
-                case GumballMachineState.HasQuarter:
-                    message = "You can't insert another quarter";
-                    break;
-                case GumballMachineState.NoQuarter:
-                    _state = GumballMachineState.HasQuarter;
-                    message = "You inserted quarter";
-                    break;
-                case GumballMachineState.SoldOut:
-                    message = "You can't insert a quarter, the machine is sold out";
-                    break;
-                case GumballMachineState.Sold:
-                    message = "Please wait, we're already giving you a gumbail";
-                    break;
-                default:
-                    break;
-            }
-            System.Console.WriteLine(message);
-        }
+    public interface IState
+    {
+        void InsertQuarter();
+        void EjectQuarter();
+        void TurnCrank();
+        void Dispense();
+    }
 
-        public void EjectQuarter()
-        {
-            var message = string.Empty;
-            switch (_state)
-            {
-                case GumballMachineState.HasQuarter:
-                    message = "Quarter returned";
-                    _state = GumballMachineState.NoQuarter;
-                    break;
-                case GumballMachineState.NoQuarter:
-                    message = "You haven't inserted a quarter";
-                    break;
-                case GumballMachineState.SoldOut:
-                    message = "You can't eject, you haven't inserted a quarter yet";
-                    break;
-                case GumballMachineState.Sold:
-                    message = "Sorry, you already turned the crank";
-                    break;
-                default:
-                    break;
-            }
-            System.Console.WriteLine(message);
-        }
+    public class WinnerState : IState
+    {
+        private readonly GumballMachine gumballMachine;
 
-        public void TurnCrank()
+        public WinnerState(GumballMachine gumballMachine)
         {
-            var message = string.Empty;
-            switch (_state)
-            {
-                case GumballMachineState.Sold:
-                    message = "Turning twice doen't get you another gumball!!";
-                    break;
-                case GumballMachineState.NoQuarter:
-                    message = "You turned but there's no quarter";
-                    break;
-                case GumballMachineState.SoldOut:
-                    message = "You turned, but there are no gumballs";
-                    break;
-                case GumballMachineState.HasQuarter:
-                    System.Console.WriteLine("You turned");
-                    _state = GumballMachineState.Sold;
-                    Dispense();
-                    return;
-                default:
-                    break;
-            }
-            System.Console.WriteLine(message);
+            this.gumballMachine = gumballMachine;
         }
 
         public void Dispense()
         {
-            switch (_state)
+            System.Console.WriteLine("YOU'RE A WINNER! You get two balls for your quarter");
+            gumballMachine.ReleaseBall();
+            if (gumballMachine.Count == 0)
             {
-                case GumballMachineState.Sold:
-                    System.Console.WriteLine("A gumball comes rolling out the slot");
-                    _count--;
-                    _state = _count == 0 ? GumballMachineState.SoldOut : GumballMachineState.NoQuarter;
-                    if (_count == 0)
-                        System.Console.WriteLine("Oops, out of gumballs");
-                    break;
-                case GumballMachineState.NoQuarter:
-                    System.Console.WriteLine("You need pay first");
-                    break;
-                case GumballMachineState.SoldOut:
-                case GumballMachineState.HasQuarter:
-                    System.Console.WriteLine("No gumball dispensed");
-                default:
+                gumballMachine.SetState(gumballMachine.SoldOutState);
+            }
+            else
+            {
+                gumballMachine.ReleaseBall();
+                if (gumballMachine.Count == 0)
+                {
+                    System.Console.WriteLine("Oops, out of gumballs!");
+                    gumballMachine.SetState(gumballMachine.SoldOutState);
+                }
+                else
+                {
+                    gumballMachine.SetState(gumballMachine.NoQuarterState);
+                }
+            }
+        }
+
+        public void EjectQuarter()
+        {
+            Console.WriteLine("Sorry, you already turned the crank");
+        }
+
+        public void InsertQuarter()
+        {
+            Console.WriteLine("Please wait, we're already giving you a gumbail");
+        }
+
+        public void TurnCrank()
+        {
+            Console.WriteLine("Turning twice doen't get you another gumball!!");
+        }
+    }
+
+    public class HasQuarterState : IState
+    {
+        private Random _randomWinner = new Random(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        private readonly GumballMachine gumballMachine;
+
+        public HasQuarterState(GumballMachine gumballMachine)
+        {
+            this.gumballMachine = gumballMachine;
+        }
+        public void Dispense()
+        {
+            Console.WriteLine("No gumball dispensed");
+        }
+
+        public void EjectQuarter()
+        {
+            Console.WriteLine("Quarter returned");
+            gumballMachine.SetState(gumballMachine.NoQuarterState);
+        }
+
+        public void InsertQuarter()
+        {
+            Console.WriteLine("You can't insert another quarter");
+        }
+
+        public void TurnCrank()
+        {
+            Console.WriteLine("You turned");
+            var winner = _randomWinner.Next(10);
+            if (winner == 0 && gumballMachine.Count > 0)
+            {
+                gumballMachine.SetState(gumballMachine.WinnerState);
+            }
+            else
+            {
+                gumballMachine.SetState(gumballMachine.SoldState);
             }
         }
     }
 
-    public enum GumballMachineState
+    public class NoQuarterState : IState
     {
-        SoldOut,
-        NoQuarter,
-        HasQuarter,
-        Sold
+        private readonly GumballMachine gumballMachine;
+
+        public NoQuarterState(GumballMachine gumballMachine)
+        {
+            this.gumballMachine = gumballMachine;
+        }
+        public void Dispense()
+        {
+            Console.WriteLine("You need pay first");
+        }
+
+        public void EjectQuarter()
+        {
+            Console.WriteLine("You haven't inserted a quarter");
+        }
+
+        public void InsertQuarter()
+        {
+            Console.WriteLine("You can't insert another quarter");
+            gumballMachine.SetState(gumballMachine.HasQuarterState);
+        }
+
+        public void TurnCrank()
+        {
+            Console.WriteLine("You turned but there's no quarter");
+        }
+    }
+
+    public class SoldOutState : IState
+    {
+        private readonly GumballMachine gumballMachine;
+
+        public SoldOutState(GumballMachine gumballMachine)
+        {
+            this.gumballMachine = gumballMachine;
+        }
+        public void Dispense()
+        {
+            Console.WriteLine("No gumball dispensed");
+        }
+
+        public void EjectQuarter()
+        {
+            Console.WriteLine("You can't eject, you haven't inserted a quarter yet");
+        }
+
+        public void InsertQuarter()
+        {
+            Console.WriteLine("You can't insert a quarter, the machine is sold out");
+        }
+
+        public void TurnCrank()
+        {
+            Console.WriteLine("You turned, but there are no gumballs");
+        }
+    }
+
+    public class SoldState : IState
+    {
+        private readonly GumballMachine gumballMachine;
+
+        public SoldState(GumballMachine gumballMachine)
+        {
+            this.gumballMachine = gumballMachine;
+        }
+        public void Dispense()
+        {
+            gumballMachine.ReleaseBall();
+            if (gumballMachine.Count > 0)
+            {
+                gumballMachine.SetState(gumballMachine.NoQuarterState);
+            }
+            else
+            {
+                Console.WriteLine("Oops, out of gumballs");
+                gumballMachine.SetState(gumballMachine.SoldOutState);
+            }
+        }
+
+        public void EjectQuarter()
+        {
+            Console.WriteLine("Sorry, you already turned the crank");
+        }
+
+        public void InsertQuarter()
+        {
+            Console.WriteLine("Please wait, we're already giving you a gumbail");
+        }
+
+        public void TurnCrank()
+        {
+            Console.WriteLine("Turning twice doen't get you another gumball!!");
+        }
     }
 }
