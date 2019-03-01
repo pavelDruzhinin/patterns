@@ -141,7 +141,7 @@ namespace State
 
     public class HasQuarterState : IState
     {
-        private Random _randomWinner = new Random(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        private Random _randomWinner = new Random((int)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
         private readonly GumballMachine gumballMachine;
 
         public HasQuarterState(GumballMachine gumballMachine)
